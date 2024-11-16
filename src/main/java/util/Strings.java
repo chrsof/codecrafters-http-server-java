@@ -10,6 +10,8 @@ public final class Strings {
 
     public static final String SPACE = " ";
 
+    public static final String COLON = ":";
+
     public static String after(String string, String delimiter) {
         Objects.requireNonNull(string);
         Objects.requireNonNull(delimiter);

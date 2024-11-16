@@ -1,16 +1,15 @@
 package http;
 
 import config.Environment;
-import util.Regex;
+import io.HttpRequestReader;
+import io.Reader;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class HttpServer {
 
@@ -19,23 +18,13 @@ public final class HttpServer {
             serverSocket.setReuseAddress(true);
             try (Socket connection = serverSocket.accept()) {
                 System.out.println("accepted new connection");
-                try (Scanner in = new Scanner(connection.getInputStream());
+                try (InputStream in = connection.getInputStream();
                      PrintWriter out = new PrintWriter(connection.getOutputStream(), true, StandardCharsets.UTF_8)) {
+                    Reader<HttpRequest> reader = new HttpRequestReader(in);
+                    HttpRequest request = reader.read();
 
-                    Pattern pattern = Regex.httpPathPattern.get();
-
-                    String path = null;
-                    while (in.hasNextLine()) {
-                        String line = in.nextLine();
-                        System.out.println(line);
-                        Matcher matcher = pattern.matcher(line);
-                        if (matcher.find()) {
-                            path = matcher.group(1);
-                            break;
-                        }
-                    }
-
-                    out.write(HttpResponse.getResponse(path));
+                    String response = HttpResponse.getResponse(request);
+                    out.write(response);
                     out.flush();
                 }
             }
