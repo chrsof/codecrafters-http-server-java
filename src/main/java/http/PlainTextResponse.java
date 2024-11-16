@@ -5,13 +5,15 @@ import util.Strings;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class PlainTextResponse extends HttpResponse {
 
     private final String body;
-    private final Encoding encoding;
+    private final List<Encoding> encodings;
 
     public PlainTextResponse(HttpRequest request) {
         super(request);
@@ -23,7 +25,7 @@ public class PlainTextResponse extends HttpResponse {
             case null, default -> "";
         };
 
-        this.encoding = Encoding.parseEncoding(request.getHeaders().get(HttpHeader.ACCEPT_ENCODING));
+        this.encodings = Encoding.parseEncoding(request.getHeaders().get(HttpHeader.ACCEPT_ENCODING));
     }
 
     @Override
@@ -36,8 +38,8 @@ public class PlainTextResponse extends HttpResponse {
         Map<HttpHeader, String> headers = new HashMap<>();
         headers.put(HttpHeader.CONTENT_TYPE, "text/plain");
         headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(body.length()));
-        if (Objects.nonNull(encoding)) {
-            headers.put(HttpHeader.CONTENT_ENCODING, encoding.getEncoding());
+        if (Objects.nonNull(encodings)) {
+            headers.put(HttpHeader.CONTENT_ENCODING, encodings.stream().map(Encoding::getEncoding).collect(Collectors.joining(", ")));
         }
         return Map.copyOf(headers);
     }
