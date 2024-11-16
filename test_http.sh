@@ -201,7 +201,7 @@ function read_request_body() {
 
 function compression_headers() {
   printf 'Running test for Stage #DF4 (HTTP Compression - Compression headers)\n'
-  response=$(curl -siXGET -H "Accept-Encoding: gzip" $url/echo/apple)
+  response=$(curl -siXGET --compressed -H "Accept-Encoding: gzip" $url/echo/apple)
   status_code=$(echo "$response" | grep -i HTTP/1.1 | awk '{print $2}')
   if [[ "$status_code" -ne 200 ]] ; then
     printf 'Expected status_code 200, got %s\nTest Failed' "$status_code"
@@ -253,7 +253,7 @@ function compression_headers() {
 
 function multiple_compression_schemes() {
   printf 'Running test for Stage #DF4 (HTTP Compression - Multiple compression schemes)\n'
-  response=$(curl -siXGET -H "Accept-Encoding: invalid-encoding, gzip, another-invalid-encoding" $url/echo/apple)
+  response=$(curl -siXGET --compressed -H "Accept-Encoding: invalid-encoding, gzip, another-invalid-encoding" $url/echo/apple)
   status_code=$(echo "$response" | grep -i HTTP/1.1 | awk '{print $2}')
   if [[ "$status_code" -ne 200 ]] ; then
     printf 'Expected status_code 200, got %s\nTest Failed' "$status_code"
@@ -303,6 +303,58 @@ function multiple_compression_schemes() {
   printf 'Test Passed\n'
 }
 
+function gzip_compression() {
+  printf 'Running test for Stage #CR8 (HTTP Compression - Gzip compression)\n'
+  response=$(curl -siXGET --compressed -H "Accept-Encoding: gzip" $url/echo/apple)
+  status_code=$(echo "$response" | grep -i HTTP/1.1 | awk '{print $2}')
+  if [[ "$status_code" -ne 200 ]] ; then
+    printf 'Expected status_code 200, got %s\nTest Failed' "$status_code"
+    exit 1
+  fi
+  printf 'Received response with status code 200\n'
+  content_type=$(echo "$response" | grep -i content-type: | sed 's/^.*: //')
+  if [[ -z "$content_type" ]] ; then
+    printf 'Expected Content-Type header in response\nTest Failed'
+    exit 1
+  elif [[ ! $content_type =~ text/plain ]]; then
+    printf 'Expected Content-Type header value to be text/plain, got %s\nTest Failed' "$content_type"
+    exit 1
+  else
+    printf 'Content-Type: text/plain header is present\n'
+  fi
+  content_length=$(echo "$response" | grep -i content-length: | sed 's/^.*: //')
+  if [[ -z "$content_length" ]] ; then
+    printf 'Expected Content-Length header in response\nTest Failed'
+    exit 1
+  elif [[ ! $content_length =~ 5 ]]; then
+    printf 'Expected Content-Length header value to be 5, got %s\nTest Failed' "$content_length"
+    exit 1
+  else
+    printf 'Content-Length: 5 header is present\n'
+  fi
+  content_encoding=$(echo "$response" | grep -i content-encoding: | sed 's/^.*: //')
+  if [[ -z "$content_encoding" ]] ; then
+    printf 'Expected Content-Encoding header in response\nTest Failed'
+    exit 1
+  elif [[ ! $content_encoding =~ gzip ]]; then
+    printf 'Expected Content-Encoding header value to be gzip, got %s\nTest Failed' "$content_encoding"
+    exit 1
+  else
+    printf 'Content-Encoding: gzip header is present\n'
+  fi
+  body=$(echo "$response" | tail -n 1)
+  if [[ -z "$body" ]] ; then
+    printf 'Expected body in response\nTest Failed'
+    exit 1
+  elif [[ $body != "apple" ]] ; then
+    printf 'Expected body apple, got %s\nTest Failed' "$body"
+    exit 1
+  else
+    printf 'Body apple is present\n'
+  fi
+  printf 'Test Passed\n'
+}
+
 function test() {
   respond_with_200
   printf '\n'
@@ -321,6 +373,8 @@ function test() {
   compression_headers
   printf '\n'
   multiple_compression_schemes
+  printf '\n'
+  gzip_compression
 }
 
 if [ $# -eq 0 ]; then
