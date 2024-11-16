@@ -7,7 +7,9 @@ public enum HttpHeader {
     USER_AGENT("User-Agent"),
     ACCEPT("Accept"),
     CONTENT_TYPE("Content-Type"),
-    CONTENT_LENGTH("Content-Length");
+    CONTENT_LENGTH("Content-Length"),
+    ACCEPT_ENCODING("Accept-Encoding"),
+    CONTENT_ENCODING("Content-Encoding");
 
     private final String header;
 

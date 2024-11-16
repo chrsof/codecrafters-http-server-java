@@ -1,13 +1,17 @@
 package http;
 
+import util.Encoding;
 import util.Strings;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class PlainTextResponse extends HttpResponse {
 
     private final String body;
+    private final Encoding encoding;
 
     public PlainTextResponse(HttpRequest request) {
         super(request);
@@ -18,6 +22,8 @@ public class PlainTextResponse extends HttpResponse {
                     request.getHeaders().get(HttpHeader.USER_AGENT);
             case null, default -> "";
         };
+
+        this.encoding = Encoding.parseEncoding(request.getHeaders().get(HttpHeader.ACCEPT_ENCODING));
     }
 
     @Override
@@ -27,9 +33,13 @@ public class PlainTextResponse extends HttpResponse {
 
     @Override
     protected Map<HttpHeader, String> getResponseHeaders() {
-        return Map.of(
-                HttpHeader.CONTENT_TYPE, "text/plain",
-                HttpHeader.CONTENT_LENGTH, String.valueOf(body.length()));
+        Map<HttpHeader, String> headers = new HashMap<>();
+        headers.put(HttpHeader.CONTENT_TYPE, "text/plain");
+        headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(body.length()));
+        if (Objects.nonNull(encoding)) {
+            headers.put(HttpHeader.CONTENT_ENCODING, encoding.getEncoding());
+        }
+        return Map.copyOf(headers);
     }
 
     @Override
