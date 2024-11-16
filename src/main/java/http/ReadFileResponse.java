@@ -10,11 +10,11 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 
-public class FileResponse extends HttpResponse {
+public class ReadFileResponse extends HttpResponse {
 
     private String contents;
 
-    public FileResponse(HttpRequest request) {
+    public ReadFileResponse(HttpRequest request) {
         super(request);
 
         String directory = Objects.requireNonNullElse(Environment.getInstance().getDirectory(), ".");
@@ -23,7 +23,7 @@ public class FileResponse extends HttpResponse {
         Path filepath = Path.of(directory, filename);
         try {
             this.contents = Files.readString(filepath);
-        } catch (IOException e) {
+        } catch (IOException ioe) {
             // noop
         }
     }

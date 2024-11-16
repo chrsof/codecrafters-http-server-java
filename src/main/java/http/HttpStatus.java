@@ -2,6 +2,7 @@ package http;
 
 public enum HttpStatus {
     OK("OK", 200),
+    CREATED("Created", 201),
     NOT_FOUND("Not Found", 404);
 
     private final String status;

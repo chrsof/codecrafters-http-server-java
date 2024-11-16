@@ -177,6 +177,28 @@ function return_file() {
   return_non_existent_file
 }
 
+function read_request_body() {
+  printf 'Running test for Stage #QV8 (Read request body)\n'
+  content="apples, oranges, kiwi"
+  response=$(curl -siXPOST -H "Content-Type: application/octet-stream" --data "$content" http://localhost:4221/files/fruit_salad)
+  status_code=$(echo "$response" | grep -i HTTP/1.1 | awk '{print $2}')
+  if [[ "$status_code" -ne 201 ]] ; then
+    printf 'Expected status_code 201, got %s\nTest Failed' "$status_code"
+    exit 1
+  fi
+  if [ ! -f /tmp/fruit_salad ]; then
+    printf 'Expected file /tmp/fruit_salad, but file not found\nTest Failed'
+    exit 1
+  fi
+  file_content=$(cat /tmp/fruit_salad)
+  if [ "$content" != "$file_content" ] ; then
+    printf 'Expected contents %s, got %s\nTest Failed' "$content" "$file_content"
+    exit 1
+  fi
+  rm -f /tmp/fruit_salad
+  printf 'Found file /tmp/fruit_salad with content %s\nTest Passed\n' "$content"
+}
+
 function test() {
   respond_with_200
   extract_url_path
@@ -184,6 +206,7 @@ function test() {
   read_header
   return_existent_file
   return_non_existent_file
+  read_request_body
 }
 
 if [ $# -eq 0 ]; then

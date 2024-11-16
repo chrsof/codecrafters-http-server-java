@@ -13,7 +13,8 @@ public final class HttpResponseFactory {
             case "/" -> new NoBodyResponse(request);
             case String p when p.startsWith("/echo/") || ("/user-agent".equals(p) && request.getHeaders().containsKey(HttpHeader.USER_AGENT)) ->
                     new PlainTextResponse(request);
-            case String p when p.startsWith("/files/") -> new FileResponse(request);
+            case String p when p.startsWith("/files/") ->
+                    request.getMethod() == HttpMethod.POST ? new WriteFileResponse(request) : new ReadFileResponse(request);
             default -> new NotFoundResponse(request);
         };
     }
