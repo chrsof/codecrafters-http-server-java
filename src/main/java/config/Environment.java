@@ -1,4 +1,4 @@
-package http.config;
+package config;
 
 public final class Environment {
 
