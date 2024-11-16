@@ -8,6 +8,10 @@ public final class HttpResponse {
     public static String getResponse(HttpRequest request) {
         StringBuilder builder = new StringBuilder();
         return switch (request.getPath()) {
+            case null -> builder.append(Environment.HTTP_VERSION).append(Strings.SPACE)
+                    .append(HttpStatus.OK)
+                    .append(Strings.CRLF.repeat(2))
+                    .toString();
             case "/" -> builder.append(Environment.HTTP_VERSION).append(Strings.SPACE)
                     .append(HttpStatus.OK)
                     .append(Strings.CRLF.repeat(2))
@@ -26,7 +30,7 @@ public final class HttpResponse {
                         .append(value)
                         .toString();
             }
-            case null, default -> builder.append(Environment.HTTP_VERSION)
+            default -> builder.append(Environment.HTTP_VERSION)
                     .append(Strings.SPACE)
                     .append(HttpStatus.NOT_FOUND)
                     .append(Strings.CRLF.repeat(2))

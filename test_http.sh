@@ -9,7 +9,7 @@ function respond_with_200() {
     printf 'Expected status code 200, got %s\nTest Failed' "$status_code"
     exit 1
   else
-    printf 'Received response with status code 200\nTest Passed'
+    printf 'Received response with status code 200\nTest Passed\n'
   fi
 }
 
@@ -20,7 +20,7 @@ function extract_url_path() {
     printf 'Expected status code 404, got %s\nTest Failed' "$status_code"
     exit 1
   else
-    printf 'Received response with status code 404\nTest Passed'
+    printf 'Received response with status code 404\nTest Passed\n'
   fi
 }
 
@@ -63,7 +63,7 @@ function respond_with_body() {
   else
     printf 'Body apple is present\n'
   fi
-  printf 'Test Passed'
+  printf 'Test Passed\n'
 }
 
 function read_header() {
@@ -105,16 +105,21 @@ function read_header() {
   else
     printf 'Body fruit/apple is present\n'
   fi
-  printf 'Test Passed'
+  printf 'Test Passed\n'
+}
+
+function concurrent_connections() {
+  printf 'Running test for Stage #EJ5 (Concurrent connections)\n'
+  (sleep 3 && respond_with_200) &
+  (sleep 3 && respond_with_200) &
+  (sleep 3 && respond_with_200) &
+  wait
 }
 
 function test() {
   respond_with_200
-  printf '\n\n'
   extract_url_path
-  printf '\n\n'
   respond_with_body
-  printf '\n\n'
   read_header
 }
 
