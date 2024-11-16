@@ -3,39 +3,38 @@ package http;
 import config.Environment;
 import util.Strings;
 
-public final class HttpResponse {
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
-    public static String getResponse(HttpRequest request) {
-        StringBuilder builder = new StringBuilder();
-        return switch (request.getPath()) {
-            case null -> builder.append(Environment.HTTP_VERSION).append(Strings.SPACE)
-                    .append(HttpStatus.OK)
-                    .append(Strings.CRLF.repeat(2))
-                    .toString();
-            case "/" -> builder.append(Environment.HTTP_VERSION).append(Strings.SPACE)
-                    .append(HttpStatus.OK)
-                    .append(Strings.CRLF.repeat(2))
-                    .toString();
-            case String p when p.startsWith("/echo/") || ("/user-agent".equals(p) && request.getHeaders().containsKey(HttpHeader.USER_AGENT)) -> {
-                String value = p.startsWith("/echo/") ?
-                        Strings.after(p, "/echo/") :
-                        request.getHeaders().get(HttpHeader.USER_AGENT);
-                yield builder.append(Environment.HTTP_VERSION).append(Strings.SPACE)
-                        .append(HttpStatus.OK)
-                        .append(Strings.CRLF)
-                        .append(HttpHeader.CONTENT_TYPE).append(Strings.COLON).append(Strings.SPACE).append("text/plain")
-                        .append(Strings.CRLF)
-                        .append(HttpHeader.CONTENT_LENGTH).append(Strings.COLON).append(Strings.SPACE).append(value.length())
-                        .append(Strings.CRLF.repeat(2))
-                        .append(value)
-                        .toString();
-            }
-            default -> builder.append(Environment.HTTP_VERSION)
-                    .append(Strings.SPACE)
-                    .append(HttpStatus.NOT_FOUND)
-                    .append(Strings.CRLF.repeat(2))
-                    .toString();
-        };
+public abstract class HttpResponse {
+
+    private final HttpRequest request;
+
+    protected abstract HttpStatus getResponseStatus();
+
+    protected abstract Map<HttpHeader, String> getResponseHeaders();
+
+    public HttpResponse(HttpRequest request) {
+        this.request = request;
     }
+
+    public byte[] status() {
+        return "%s %s%s".formatted(Environment.HTTP_VERSION, getResponseStatus(), Strings.CRLF).getBytes(StandardCharsets.UTF_8);
+    }
+
+    public byte[] headers() {
+        StringBuilder builder = new StringBuilder();
+        getResponseHeaders().forEach((header, value) -> builder
+                .append(header)
+                .append(Strings.COLON)
+                .append(Strings.SPACE)
+                .append(value)
+                .append(Strings.CRLF)
+        );
+        builder.append(Strings.CRLF);
+        return builder.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    public abstract byte[] body();
 
 }
