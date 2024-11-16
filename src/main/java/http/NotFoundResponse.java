@@ -20,7 +20,7 @@ public class NotFoundResponse extends HttpResponse {
 
     @Override
     public byte[] body() {
-        return null;
+        return new byte[0];
     }
 
 }

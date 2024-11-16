@@ -53,7 +53,7 @@ public class WriteFileResponse extends HttpResponse {
         try {
             return Files.readString(filepath).getBytes(StandardCharsets.UTF_8);
         } catch (IOException ioe) {
-            return null;
+            return new byte[0];
         }
     }
 

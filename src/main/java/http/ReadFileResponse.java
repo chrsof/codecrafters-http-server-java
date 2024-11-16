@@ -43,7 +43,7 @@ public class ReadFileResponse extends HttpResponse {
 
     @Override
     public byte[] body() {
-        return Objects.isNull(contents) ? null : contents.getBytes(StandardCharsets.UTF_8);
+        return Objects.isNull(contents) ? new byte[0] : contents.getBytes(StandardCharsets.UTF_8);
     }
 
 }
