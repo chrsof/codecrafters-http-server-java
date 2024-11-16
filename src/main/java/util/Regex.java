@@ -7,6 +7,6 @@ import java.util.regex.Pattern;
 
 public final class Regex {
 
-    public static Supplier<Pattern> httpRequestTargetPattern = () -> Pattern.compile("^%s\\s(\\/[\\S]*).*".formatted(HttpMethod.getAllMethods()));
+    public static Supplier<Pattern> httpPathPattern = () -> Pattern.compile("^%s\\s(\\/[\\S]*).*".formatted(HttpMethod.getAllMethods()));
 
 }

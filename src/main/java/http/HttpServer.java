@@ -2,7 +2,6 @@ package http;
 
 import config.Environment;
 import util.Regex;
-import util.Strings;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,24 +22,20 @@ public final class HttpServer {
                 try (Scanner in = new Scanner(connection.getInputStream());
                      PrintWriter out = new PrintWriter(connection.getOutputStream(), true, StandardCharsets.UTF_8)) {
 
-                    Pattern pattern = Regex.httpRequestTargetPattern.get();
+                    Pattern pattern = Regex.httpPathPattern.get();
 
-                    String target = null;
+                    String path = null;
                     while (in.hasNextLine()) {
                         String line = in.nextLine();
                         System.out.println(line);
                         Matcher matcher = pattern.matcher(line);
                         if (matcher.find()) {
-                            target = matcher.group(1);
+                            path = matcher.group(1);
                             break;
                         }
                     }
 
-                    if ("/".equals(target)) {
-                        out.write("HTTP/1.1 200 OK%s".formatted(Strings.CRLF.repeat(2)));
-                    } else {
-                        out.write("HTTP/1.1 404 Not Found%s".formatted(Strings.CRLF.repeat(2)));
-                    }
+                    out.write(HttpResponse.getResponse(path));
                     out.flush();
                 }
             }
