@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 public class HttpRequestReader implements Reader<HttpRequest> {
@@ -47,10 +48,10 @@ public class HttpRequestReader implements Reader<HttpRequest> {
 
             matcher = Regex.httpHeaderPattern.get().matcher(line);
             if (matcher.find()) {
-                HttpHeader header = HttpHeader.parseHeader(matcher.group(1));
+                Optional<HttpHeader> header = HttpHeader.parseHeader(matcher.group(1));
                 String value = matcher.group(2);
-                if (Objects.nonNull(header) && Objects.nonNull(value)) {
-                    request = request.addHeader(header, value);
+                if (header.isPresent() && Objects.nonNull(value)) {
+                    request = request.addHeader(header.get(), value);
                 }
 
                 continue;

@@ -8,15 +8,9 @@ import java.util.Map;
 
 public abstract class HttpResponse {
 
-    private final HttpRequest request;
-
     protected abstract HttpStatus getResponseStatus();
 
     protected abstract Map<HttpHeader, String> getResponseHeaders();
-
-    public HttpResponse(HttpRequest request) {
-        this.request = request;
-    }
 
     public byte[] status() {
         return "%s %s%s".formatted(Environment.HTTP_VERSION, getResponseStatus(), Strings.CRLF).getBytes(StandardCharsets.UTF_8);

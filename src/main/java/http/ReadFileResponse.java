@@ -1,49 +1,48 @@
 package http;
 
 import config.Environment;
+import util.File;
 import util.Strings;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ReadFileResponse extends HttpResponse {
 
-    private String contents;
+    private final String contents;
 
     public ReadFileResponse(HttpRequest request) {
-        super(request);
-
         String directory = Objects.requireNonNullElse(Environment.getInstance().getDirectory(), ".");
         String filename = request.getPath().startsWith("/files/") ? Strings.after(request.getPath(), "/files/") : "";
 
         Path filepath = Path.of(directory, filename);
-        try {
-            this.contents = Files.readString(filepath);
-        } catch (IOException ioe) {
-            // noop
-        }
+        this.contents = File.readString(filepath).orElse(null);
     }
 
     @Override
     protected HttpStatus getResponseStatus() {
-        return Objects.isNull(contents) ? HttpStatus.NOT_FOUND : HttpStatus.OK;
+        return Optional.ofNullable(contents)
+                .map(_ -> HttpStatus.OK)
+                .orElse(HttpStatus.NOT_FOUND);
     }
 
     @Override
     protected Map<HttpHeader, String> getResponseHeaders() {
-        return Objects.isNull(contents) ? Map.of() : Map.of(
-                HttpHeader.CONTENT_TYPE, "application/octet-stream",
-                HttpHeader.CONTENT_LENGTH, String.valueOf(contents.length())
-        );
+        return Optional.ofNullable(contents)
+                .map(string -> Map.of(
+                        HttpHeader.CONTENT_TYPE, "application/octet-stream",
+                        HttpHeader.CONTENT_LENGTH, String.valueOf(string.length())))
+                .orElseGet(Map::of);
     }
 
     @Override
     public byte[] body() {
-        return Objects.isNull(contents) ? new byte[0] : contents.getBytes(StandardCharsets.UTF_8);
+        return Optional.ofNullable(contents)
+                .map(string -> string.getBytes(StandardCharsets.UTF_8))
+                .orElseGet(() -> new byte[0]);
     }
 
 }

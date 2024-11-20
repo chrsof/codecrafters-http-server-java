@@ -4,10 +4,6 @@ import java.util.Map;
 
 public class NoBodyResponse extends HttpResponse {
 
-    public NoBodyResponse(HttpRequest request) {
-        super(request);
-    }
-
     @Override
     protected HttpStatus getResponseStatus() {
         return HttpStatus.OK;

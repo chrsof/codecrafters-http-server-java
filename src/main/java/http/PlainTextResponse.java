@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class PlainTextResponse extends HttpResponse {
@@ -17,8 +16,6 @@ public class PlainTextResponse extends HttpResponse {
     private final List<Encoding> encodings;
 
     public PlainTextResponse(HttpRequest request) {
-        super(request);
-
         this.encodings = Encoding.parseEncoding(request.getHeaders().get(HttpHeader.ACCEPT_ENCODING));
 
         String response = switch (request.getPath()) {
@@ -28,7 +25,7 @@ public class PlainTextResponse extends HttpResponse {
             case null, default -> "";
         };
 
-        this.body = Objects.nonNull(this.encodings) && this.encodings.contains(Encoding.GZIP) ? Gzip.compress(response) : response.getBytes(StandardCharsets.UTF_8);
+        this.body = this.encodings.contains(Encoding.GZIP) ? Gzip.compress(response) : response.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -41,8 +38,11 @@ public class PlainTextResponse extends HttpResponse {
         Map<HttpHeader, String> headers = new HashMap<>();
         headers.put(HttpHeader.CONTENT_TYPE, "text/plain");
         headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(body.length));
-        if (Objects.nonNull(encodings)) {
-            headers.put(HttpHeader.CONTENT_ENCODING, encodings.stream().map(Encoding::getEncoding).collect(Collectors.joining(", ")));
+        if (!encodings.isEmpty()) {
+            headers.put(
+                    HttpHeader.CONTENT_ENCODING,
+                    encodings.stream().map(Encoding::getEncoding).collect(Collectors.joining(", "))
+            );
         }
         return Map.copyOf(headers);
     }

@@ -3,6 +3,7 @@ package util;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public enum Encoding {
     GZIP("gzip");
@@ -17,21 +18,21 @@ public enum Encoding {
         return encoding;
     }
 
-    private static Encoding parse(String encoding) {
+    private static Optional<Encoding> parse(String encoding) {
         return Arrays.stream(Encoding.values())
                 .filter(e -> e.encoding.equals(encoding))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     public static List<Encoding> parseEncoding(String encoding) {
         if (Objects.isNull(encoding) || encoding.isBlank()) {
-            return null;
+            return List.of();
         }
         return Arrays.stream(encoding.split(","))
                 .map(String::strip)
                 .map(Encoding::parse)
-                .filter(Objects::nonNull)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .toList();
     }
 

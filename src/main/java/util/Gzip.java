@@ -13,7 +13,7 @@ public final class Gzip {
 
     public static byte[] compress(String content) {
         if (Objects.isNull(content) || content.isBlank()) {
-            return null;
+            return new byte[0];
         }
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream(content.length());
@@ -23,7 +23,7 @@ public final class Gzip {
             gos.flush();
             return baos.toByteArray();
         } catch (IOException ioe) {
-            return null;
+            return new byte[0];
         }
     }
 

@@ -7,7 +7,7 @@ public class HttpRequest {
 
     private final HttpMethod method;
     private final String path;
-    private Map<HttpHeader, String> headers;
+    private final Map<HttpHeader, String> headers;
     private final String body;
 
     public HttpRequest(HttpRequest.Builder builder) {
