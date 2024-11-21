@@ -13,7 +13,12 @@ public abstract class HttpResponse {
     protected abstract Map<HttpHeader, String> getResponseHeaders();
 
     public byte[] status() {
-        return "%s %s%s".formatted(Environment.HTTP_VERSION, getResponseStatus(), Strings.CRLF).getBytes(StandardCharsets.UTF_8);
+        StringBuilder builder = new StringBuilder();
+        builder.append(Environment.HTTP_VERSION)
+                .append(Strings.SPACE)
+                .append(getResponseStatus())
+                .append(Strings.CRLF);
+        return builder.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     public byte[] headers() {

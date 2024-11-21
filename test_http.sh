@@ -180,7 +180,7 @@ function return_file() {
 function read_request_body() {
   printf 'Running test for Stage #QV8 (Read request body)\n'
   content="apples, oranges, kiwi"
-  response=$(curl -siXPOST -H "Content-Type: application/octet-stream" --data "$content" http://localhost:4221/files/fruit_salad)
+  response=$(curl -siXPOST -H "Content-Type: application/octet-stream" --data "$content" $url/files/fruit_salad)
   status_code=$(echo "$response" | grep -i HTTP/1.1 | awk '{print $2}')
   if [[ "$status_code" -ne 201 ]] ; then
     printf 'Expected status_code 201, got %s\nTest Failed' "$status_code"
