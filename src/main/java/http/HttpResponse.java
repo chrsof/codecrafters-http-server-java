@@ -5,20 +5,32 @@ import util.Strings;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class HttpResponse {
 
+    private final HttpRequest request;
+
+    public HttpResponse(HttpRequest request) {
+        this.request = request;
+    }
+
     protected abstract HttpStatus getResponseStatus();
 
-    protected abstract Map<HttpHeader, String> getResponseHeaders();
+    protected Map<HttpHeader, String> getResponseHeaders() {
+        return Optional.ofNullable(request.getHeaders().get(HttpHeader.CONNECTION))
+                .map(connection -> Map.of(HttpHeader.CONNECTION, connection))
+                .orElse(Map.of());
+    }
 
     public byte[] status() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(Environment.HTTP_VERSION)
-                .append(Strings.SPACE)
-                .append(getResponseStatus())
-                .append(Strings.CRLF);
-        return builder.toString().getBytes(StandardCharsets.UTF_8);
+        return "%s%s%s%s"
+                .formatted(
+                        Environment.HTTP_VERSION,
+                        Strings.SPACE,
+                        getResponseStatus(),
+                        Strings.CRLF)
+                .getBytes(StandardCharsets.UTF_8);
     }
 
     public byte[] headers() {

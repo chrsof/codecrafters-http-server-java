@@ -374,6 +374,17 @@ function multiple_persistent_connections() {
   wait
 }
 
+function connection_closure() {
+  printf 'Running test for Stage #KH7 (Connection closure)\n'
+  response=$(curl -siXGET --http1.1 -v $url/echo/apple --next $url/user-agent -H "Connection: close" -H "User-Agent: banana/strawberry")
+  if [[ $response == *"apple"* && $response == *"banana/strawberry"* ]]; then
+    printf 'Test Passed\n'
+  else
+    printf 'Expected to receive 1 body with apple and 1 body with banana/strawberry, got %s\nTest Failed' "$response"
+    exit 1
+  fi
+}
+
 function test() {
   respond_with_200
   printf '\n'
@@ -398,6 +409,8 @@ function test() {
   persistent_connection
   printf '\n'
   multiple_persistent_connections
+  printf '\n'
+  connection_closure
 }
 
 if [ $# -eq 0 ]; then

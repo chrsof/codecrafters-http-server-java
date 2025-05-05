@@ -16,6 +16,7 @@ public class PlainTextResponse extends HttpResponse {
     private final List<Encoding> encodings;
 
     public PlainTextResponse(HttpRequest request) {
+        super(request);
         this.encodings = Encoding.parseEncoding(request.getHeaders().get(HttpHeader.ACCEPT_ENCODING));
 
         String response = switch (request.getPath()) {
@@ -35,7 +36,7 @@ public class PlainTextResponse extends HttpResponse {
 
     @Override
     protected Map<HttpHeader, String> getResponseHeaders() {
-        Map<HttpHeader, String> headers = new HashMap<>();
+        Map<HttpHeader, String> headers = new HashMap<>(super.getResponseHeaders());
         headers.put(HttpHeader.CONTENT_TYPE, "text/plain");
         headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(body.length));
         if (!encodings.isEmpty()) {
@@ -44,7 +45,7 @@ public class PlainTextResponse extends HttpResponse {
                     encodings.stream().map(Encoding::getEncoding).collect(Collectors.joining(", "))
             );
         }
-        return Map.copyOf(headers);
+        return headers;
     }
 
     @Override

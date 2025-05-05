@@ -1,7 +1,5 @@
-package util;
+package http;
 
-import http.HttpRequest;
-import http.HttpResponse;
 import io.HttpRequestReader;
 import io.HttpResponseWriter;
 import io.Reader;
@@ -29,6 +27,8 @@ public class ConnectionHandler implements Runnable {
             while (!connection.isClosed() && bis.read() != -1) {
                 Reader<HttpRequest> reader = new HttpRequestReader(bis);
                 HttpRequest request = reader.read();
+                bis.mark(bis.available());
+
                 HttpResponse response = HttpResponseFactory.getResponse(request);
                 Writer<HttpResponse> writer = new HttpResponseWriter(bos);
                 writer.write(response);

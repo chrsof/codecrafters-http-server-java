@@ -1,7 +1,6 @@
 package http;
 
 import config.Environment;
-import util.ConnectionHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
