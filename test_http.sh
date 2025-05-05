@@ -366,6 +366,14 @@ function persistent_connection() {
   fi
 }
 
+function multiple_persistent_connections() {
+  printf 'Running test for Stage #UL1 (Multiple persistent connections)\n'
+  (sleep 3 && persistent_connection) &
+  (sleep 3 && persistent_connection) &
+  (sleep 3 && persistent_connection) &
+  wait
+}
+
 function test() {
   respond_with_200
   printf '\n'
@@ -388,6 +396,8 @@ function test() {
   gzip_compression
   printf '\n'
   persistent_connection
+  printf '\n'
+  multiple_persistent_connections
 }
 
 if [ $# -eq 0 ]; then
