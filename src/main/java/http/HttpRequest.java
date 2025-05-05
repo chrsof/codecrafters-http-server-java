@@ -33,6 +33,10 @@ public class HttpRequest {
         return body;
     }
 
+    public boolean isNonPersistenceRequested() {
+        return "close".equalsIgnoreCase(headers.get(HttpHeader.CONNECTION));
+    }
+
     public static Builder builder() {
         return new Builder();
     }

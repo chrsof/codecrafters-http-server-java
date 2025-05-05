@@ -355,6 +355,17 @@ function gzip_compression() {
   printf 'Test Passed\n'
 }
 
+function persistent_connection() {
+  printf 'Running test for Stage #AG9 (Persistent connection)\n'
+  response=$(curl -siXGET --http1.1 -v $url/echo/apple $url/echo/pear)
+  if [[ $response == *"apple"* && $response == *"pear"* ]]; then
+    printf 'Test Passed\n'
+  else
+    printf 'Expected to receive 1 body with apple and 1 body with pear, got %s\nTest Failed' "$response"
+    exit 1
+  fi
+}
+
 function test() {
   respond_with_200
   printf '\n'
@@ -375,6 +386,8 @@ function test() {
   multiple_compression_schemes
   printf '\n'
   gzip_compression
+  printf '\n'
+  persistent_connection
 }
 
 if [ $# -eq 0 ]; then

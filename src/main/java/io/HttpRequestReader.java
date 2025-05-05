@@ -65,6 +65,7 @@ public class HttpRequestReader implements Reader<HttpRequest> {
 
     private String parseInputStream() throws IOException {
         StringBuilder request = new StringBuilder();
+        in.reset();
         while (in.available() != 0) {
             request.append((char) in.read());
         }
