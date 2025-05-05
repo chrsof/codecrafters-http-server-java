@@ -7,9 +7,7 @@ import io.HttpResponseWriter;
 import io.Reader;
 import io.Writer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 
 public class ConnectionHandler implements Runnable {
@@ -23,15 +21,24 @@ public class ConnectionHandler implements Runnable {
     @Override
     public void run() {
         System.out.println("accepted new connection");
-        try (InputStream in = connection.getInputStream();
-             OutputStream out = connection.getOutputStream()) {
-            Reader<HttpRequest> reader = new HttpRequestReader(in);
-            HttpRequest request = reader.read();
-            HttpResponse response = HttpResponseFactory.getResponse(request);
-            Writer<HttpResponse> writer = new HttpResponseWriter(out);
-            writer.write(response);
-        } catch (IOException e) {
-            System.err.printf("IOException: %s%n", e.getMessage());
+        try (connection;
+             BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
+             BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream())) {
+            connection.setSoTimeout(1_000);
+            bis.mark(1);
+            while (!connection.isClosed() && bis.read() != -1) {
+                Reader<HttpRequest> reader = new HttpRequestReader(bis);
+                HttpRequest request = reader.read();
+                HttpResponse response = HttpResponseFactory.getResponse(request);
+                Writer<HttpResponse> writer = new HttpResponseWriter(bos);
+                writer.write(response);
+
+                if (request.isNonPersistenceRequested()) {
+                    break;
+                }
+            }
+        } catch (IOException ioe) {
+            System.err.printf("IOException: %s%n", ioe.getMessage());
         }
     }
 

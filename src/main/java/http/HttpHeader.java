@@ -10,7 +10,8 @@ public enum HttpHeader {
     CONTENT_TYPE("Content-Type"),
     CONTENT_LENGTH("Content-Length"),
     ACCEPT_ENCODING("Accept-Encoding"),
-    CONTENT_ENCODING("Content-Encoding");
+    CONTENT_ENCODING("Content-Encoding"),
+    CONNECTION("Connection");
 
     private final String header;
 
